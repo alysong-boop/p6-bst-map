@@ -355,7 +355,7 @@ private:
      if(empty_impl(node)){
       return 0;
     }
-    return 1 + max(height_impl(node->left), height_impl(node->right));
+    return 1 + std::max(height_impl(node->left), height_impl(node->right));
   }
 
   // EFFECTS: Creates and returns a pointer to the root of a new node structure
@@ -370,8 +370,8 @@ private:
     copy_node->datum = node->datum;
     copy_node->left = node->left;
     copy_node->right = node->right;
-    size_impl(copy_node) = size_impl(node);
-    height_impl(copy_node) =  height_impl(node);
+    copy_nodes_impl(node->left);
+    copy_nodes_impl(node->right);
     return copy_node;
   }
 
@@ -428,7 +428,16 @@ private:
   //       parameter to compare elements.
   static Node * insert_impl(Node *node, const T &item, Compare less) {
     assert(!find_impl(node, item, less));
-    //attempt later
+    if (empty_impl(node)) {
+      node->datum = item;
+    }
+
+    if (less(item, node->datum)) {
+      insert_impl(node->left, item, less);
+    }
+    else if (less(node->datum, item)) {
+      insert_impl(node->right, item, less);
+    }
   }
 
   // EFFECTS : Returns a pointer to the Node containing the minimum element
@@ -487,7 +496,7 @@ private:
       return;
     }
     traverse_inorder_impl(node->left, os);
-    os << node->datum << " " << endl;
+    os << node->datum << " ";
     traverse_inorder_impl(node->right, os);
   }
 
@@ -503,7 +512,7 @@ private:
     if (empty_impl(node)) {
       return;
     }
-    os << node->datum << " " << endl;
+    os << node->datum << " ";
     traverse_inorder_impl(node->left, os);
     traverse_inorder_impl(node->right, os);
   }
@@ -524,10 +533,10 @@ private:
       return nullptr;
     }
 
-    //this does not work because we dont know if node->left->datum
-    //is null but I am leaving it here incase it is later useful
-    //for thought process (it could just be bad)
-    if (less(val, node->left->datum)) {
+    //im pretty sure this does not work because we dont know if 
+    //node->left->datum is null but I am leaving it here incase 
+    //it is later useful for thought process (it could just be bad)
+    if (less(val, node->left->datum) && !empty_impl(node->left)) {
       return min_greater_than_impl(node->left, val, less);
     } else if (less(node->datum, val)) {
       return min_greater_than_impl(node->right, val, less);
