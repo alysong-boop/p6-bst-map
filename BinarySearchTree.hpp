@@ -429,15 +429,18 @@ private:
   static Node * insert_impl(Node *node, const T &item, Compare less) {
     assert(!find_impl(node, item, less));
     if (empty_impl(node)) {
+      node = new Node;
       node->datum = item;
+      return node;
     }
 
     if (less(item, node->datum)) {
-      insert_impl(node->left, item, less);
+      node->left = insert_impl(node->left, item, less);
     }
     else if (less(node->datum, item)) {
-      insert_impl(node->right, item, less);
+      node->right = insert_impl(node->right, item, less);
     }
+    return node;
   }
 
   // EFFECTS : Returns a pointer to the Node containing the minimum element
@@ -463,7 +466,7 @@ private:
     if (empty_impl(node->right)) {
       return node;
     }
-    return min_element_impl(node->right);
+    return max_element_impl(node->right);
   }
 
 
@@ -474,13 +477,21 @@ private:
     if (empty_impl(node)) {
       return true;
     }
-    if (less(node->left->datum, node->datum)){
-      return check_sorting_invariant_impl(node->left, less);
+    if (!empty_impl(node->left)) {
+      if (less(node->left->datum, node->datum)){
+        return check_sorting_invariant_impl(node->left, less);
+      } else {
+        return false;
+      }
     }
-    if (less(node->datum, node->right->datum)) {
-      return check_sorting_invariant_impl(node->right, less);
+    if (!empty_impl(node->right)) {
+      if (less(node->datum, node->right->datum)) {
+        return check_sorting_invariant_impl(node->right, less);
+      } else {
+        return false;
+      }
     }
-    return false;
+    return true;
   }
 
   // EFFECTS : Traverses the tree rooted at 'node' using an in-order traversal,
@@ -532,22 +543,24 @@ private:
     if (empty_impl(node) || less(max_element_impl(node)->datum,val)) {
       return nullptr;
     }
-
-    //im pretty sure this does not work because we dont know if 
-    //node->left->datum is null but I am leaving it here incase 
-    //it is later useful for thought process (it could just be bad)
-    if (less(val, node->left->datum) && !empty_impl(node->left)) {
-      return min_greater_than_impl(node->left, val, less);
+ //AHHHHH IDK THIS IS WRONG
+    if (less(val, node->datum)) {
+      if (!empty_impl(node->left)) {
+        if (less(val, node->left->datum)) {
+          return min_greater_than_impl(node->left, val, less);
+        } else if (val == node->left->datum) {
+          return node;
+        }
+      }
     } else if (less(node->datum, val)) {
-      return min_greater_than_impl(node->right, val, less);
-    }
-
-    if (less(val, node->right->datum)) {
-      return min_greater_than_impl(node->left, val, less);
-    } else if (less(node->right->datum, val)) {
-      return min_greater_than_impl(node->right, val, less);
-    }
-
+        if (!empty_impl(node->right)) {
+          if (less(node->right->datum, val)) {
+            return min_greater_than_impl(node->right, val, less);
+          } else if (val == node->right->datum) {
+            return node;
+          }
+        }
+      }
     return node;
   }
 
