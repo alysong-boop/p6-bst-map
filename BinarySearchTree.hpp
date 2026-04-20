@@ -543,6 +543,18 @@ private:
     if (empty_impl(node) || less(max_element_impl(node)->datum,val)) {
       return nullptr;
     }
+
+          //this should be right? maybe
+             if(less(node->datum, val) || (!less(node->datum, val) && !less(val, node->datum))){
+      return min_greater_than_impl(node->right, val, less);
+    }
+    Node *left = min_greater_than_impl(node->left, val, less);
+    if(left != nullptr){
+        return left;
+    }else{
+      return node;
+    }
+            
  //AHHHHH IDK THIS IS WRONG
     if (less(val, node->datum)) {
       if (!empty_impl(node->left)) {
