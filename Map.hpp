@@ -33,7 +33,7 @@ private:
   // A custom comparator
   class PairComp {
     public:
-     PairComp operator()(const Pair_type &lhs, const Pair_type &rhs){
+     bool operator()(const Pair_type &lhs, const Pair_type &rhs){
       return Key_compare()(lhs.first, rhs.first);
     }
   };
@@ -67,13 +67,13 @@ public:
 
   // EFFECTS : Returns whether this Map is empty.
   bool empty() const{
-    tree.empty();
+    return tree.empty();
   }
 
   // EFFECTS : Returns the number of elements in this Map.
   // NOTE : size_t is an integral type from the STL
   size_t size() const{
-    tree.size();
+    return tree.size();
   }
 
   // EFFECTS : Searches this Map for an element with a key equivalent
@@ -124,7 +124,12 @@ public:
   //           an iterator to the newly inserted element, along with
   //           the value true.
   std::pair<Iterator, bool> insert(const Pair_type &val){
-    return tree.insert(val);
+    Iterator it = find(val.first);
+    if(it != end()){
+      return {it, false};
+    }else{
+      return {tree.insert(val), true};
+    }
   }
 
   // EFFECTS : Returns an iterator to the first key-value pair in this Map.
