@@ -368,10 +368,8 @@ private:
     }
     Node *copy_node = new Node;
     copy_node->datum = node->datum;
-    copy_node->left = node->left;
-    copy_node->right = node->right;
-    copy_nodes_impl(node->left);
-    copy_nodes_impl(node->right);
+    copy_node->left = copy_nodes_impl(node->left);
+    copy_node->right = copy_nodes_impl(node->right);
     return copy_node;
   }
 
@@ -431,6 +429,8 @@ private:
     if (empty_impl(node)) {
       node = new Node;
       node->datum = item;
+      node->left = nullptr;
+      node->right = nullptr;
       return node;
     }
 
@@ -451,6 +451,9 @@ private:
   // HINT: You don't need to compare any elements! Think about the
   //       structure, and where the smallest element lives.
   static Node * min_element_impl(Node *node) {
+    if (empty_impl(node)) {
+      return nullptr;
+    }
     if (empty_impl(node->left)) {
       return node;
     }
@@ -463,6 +466,9 @@ private:
   // HINT: You don't need to compare any elements! Think about the
   //       structure, and where the largest element lives.
   static Node * max_element_impl(Node *node) {
+    if (empty_impl(node)) {
+      return nullptr;
+    }
     if (empty_impl(node->right)) {
       return node;
     }
@@ -524,8 +530,8 @@ private:
       return;
     }
     os << node->datum << " ";
-    traverse_inorder_impl(node->left, os);
-    traverse_inorder_impl(node->right, os);
+    traverse_preorder_impl(node->left, os);
+    traverse_preorder_impl(node->right, os);
   }
 
   // EFFECTS : Returns a pointer to the Node containing the smallest element
@@ -544,36 +550,17 @@ private:
       return nullptr;
     }
 
-          //this should be right? maybe
-             if(less(node->datum, val) || (!less(node->datum, val) && !less(val, node->datum))){
+    if (less(node->datum, val) || 
+    (!less(node->datum,val) && !less(val, node->datum))) {
       return min_greater_than_impl(node->right, val, less);
     }
-    Node *left = min_greater_than_impl(node->left, val, less);
+    Node *left = min_greater_than_impl
+      (node->left, val, less);
     if(left != nullptr){
-        return left;
+      return left;
     }else{
       return node;
     }
-            
- //AHHHHH IDK THIS IS WRONG
-    if (less(val, node->datum)) {
-      if (!empty_impl(node->left)) {
-        if (less(val, node->left->datum)) {
-          return min_greater_than_impl(node->left, val, less);
-        } else if (val == node->left->datum) {
-          return node;
-        }
-      }
-    } else if (less(node->datum, val)) {
-        if (!empty_impl(node->right)) {
-          if (less(node->right->datum, val)) {
-            return min_greater_than_impl(node->right, val, less);
-          } else if (val == node->right->datum) {
-            return node;
-          }
-        }
-      }
-    return node;
   }
 
 
